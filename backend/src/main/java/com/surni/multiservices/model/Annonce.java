@@ -28,6 +28,8 @@ public class Annonce {
     @JoinColumn(name = "client_id")
     private User client;
 
+    private Boolean active = true;
+
     @OneToMany(mappedBy = "annonce", cascade = CascadeType.ALL)
     private List<Comment> comments;
 }

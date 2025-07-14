@@ -44,4 +44,10 @@ public class AnnonceService {
     public List<Annonce> findByClientId(Long clientId) {
         return annonceRepository.findByClientId(clientId);
     }
+
+    public Annonce updateActiveStatus(Long id, boolean active) {
+        Annonce annonce = annonceRepository.findById(id).orElseThrow();
+        annonce.setActive(active);
+        return annonceRepository.save(annonce);
+    }
 }

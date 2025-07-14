@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -42,6 +43,16 @@ public class AdminController {
     public ResponseEntity<Void> deleteAnnonce(@PathVariable Long id) {
         annonceService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/annonces/{id}/active")
+    public ResponseEntity<Annonce> updateAnnonceActiveStatus(@PathVariable Long id,
+            @RequestBody Map<String, Boolean> body) {
+        if (!body.containsKey("active")) {
+            return ResponseEntity.badRequest().build();
+        }
+        Annonce updated = annonceService.updateActiveStatus(id, body.get("active"));
+        return ResponseEntity.ok(updated);
     }
 
     // Pour activer/désactiver un artisan ou une annonce, il faudrait ajouter un
