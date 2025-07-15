@@ -67,6 +67,25 @@ const AnnonceListPage = () => {
               <div className="text-xs text-gray-400">
                 {new Date(annonce.createdAt).toLocaleDateString()}
               </div>
+              {annonce.status && (
+                <div className="mt-1">
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-semibold ${
+                      annonce.status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : annonce.status === "APPROVED"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {annonce.status === "PENDING"
+                      ? "En attente d'approbation"
+                      : annonce.status === "APPROVED"
+                      ? "Approuvée"
+                      : "Refusée"}
+                  </span>
+                </div>
+              )}
             </div>
           </Link>
         ))}

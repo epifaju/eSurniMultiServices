@@ -22,6 +22,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    public JwtAuthenticationFilter() {
+        Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+        logger.info("JwtAuthenticationFilter instancié !");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -47,6 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            logger.info("Authorities de l'utilisateur authentifié : {}", userDetails.getAuthorities());
         }
         filterChain.doFilter(request, response);
     }

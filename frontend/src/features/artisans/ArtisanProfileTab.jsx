@@ -25,7 +25,14 @@ const ArtisanProfileTab = () => {
           photoUrl: res.data.photoUrl || "",
         });
       })
-      .catch(() => setProfile(null));
+      .catch((err) => {
+        if (err.response && err.response.status === 404) {
+          setProfile(null); // Affichera le formulaire de création
+        } else {
+          setProfile(undefined);
+          showToast("Erreur lors du chargement du profil", "error");
+        }
+      });
   }, [userId]);
 
   const handleChange = (e) => {
@@ -64,7 +71,121 @@ const ArtisanProfileTab = () => {
     }
   };
 
-  if (!profile) return <div>Chargement du profil...</div>;
+  if (profile === undefined) {
+    return <div>Chargement du profil...</div>;
+  }
+  if (profile === null) {
+    // Afficher le formulaire de création si aucun profil n'existe
+    return (
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          try {
+            await api.post("/artisans", { ...form, user: { id: userId } });
+            showToast("Profil créé !", "success");
+            const res = await api.get(`/artisans/user/${userId}`);
+            setProfile(res.data);
+          } catch {
+            showToast("Erreur lors de la création du profil", "error");
+          }
+        }}
+        className="space-y-4"
+      >
+        <label className="block">
+          Nom
+          <input
+            name="name"
+            value={form.name || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
+          <span className="text-xs text-gray-500">
+            Votre nom complet sera affiché publiquement.
+          </span>
+        </label>
+        <label className="block">
+          Email
+          <input
+            name="email"
+            value={form.email || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
+          <span className="text-xs text-gray-500">
+            Votre email ne sera pas affiché publiquement.
+          </span>
+        </label>
+        <label className="block">
+          Téléphone
+          <input
+            name="phone"
+            value={form.phone || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          />
+          <span className="text-xs text-gray-500">
+            Facultatif. Visible uniquement par l’admin.
+          </span>
+        </label>
+        <label className="block">
+          Ville
+          <input
+            name="city"
+            value={form.city || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
+          <span className="text-xs text-gray-500">
+            Permet aux clients de vous trouver plus facilement.
+          </span>
+        </label>
+        <label className="block">
+          Catégorie
+          <input
+            name="category"
+            value={form.category || ""}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
+          <span className="text-xs text-gray-500">
+            Exemple : Plomberie, Électricité, Maçonnerie...
+          </span>
+        </label>
+        <label className="block">
+          Photo
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            className="w-full border p-2 rounded"
+          />
+          <span className="text-xs text-gray-500">
+            Photo professionnelle recommandée.
+          </span>
+          {uploading && (
+            <span className="text-blue-600 ml-2">Upload en cours...</span>
+          )}
+          {form.photoUrl && (
+            <img
+              src={form.photoUrl}
+              alt="Aperçu"
+              className="mt-2 w-24 h-24 object-cover rounded"
+            />
+          )}
+        </label>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+        >
+          Créer mon profil
+        </button>
+      </form>
+    );
+  }
 
   return (
     <div>
@@ -174,10 +295,30 @@ const ArtisanProfileTab = () => {
             </div>
           </div>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
             onClick={() => setEditing(true)}
           >
             Éditer le profil
+          </button>
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded"
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  "Êtes-vous sûr de vouloir supprimer votre profil artisan ? Cette action est irréversible."
+                )
+              )
+                return;
+              try {
+                await api.delete(`/artisans/${profile.id}`);
+                showToast("Profil artisan supprimé.", "success");
+                setProfile(null);
+              } catch {
+                showToast("Erreur lors de la suppression du profil.", "error");
+              }
+            }}
+          >
+            Supprimer mon profil
           </button>
         </div>
       )}

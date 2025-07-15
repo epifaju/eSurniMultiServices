@@ -23,6 +23,7 @@ public class Artisan {
 
     @OneToOne
     @JoinColumn(name = "user_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "artisan", cascade = CascadeType.ALL)

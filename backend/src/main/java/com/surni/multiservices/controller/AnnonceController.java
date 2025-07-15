@@ -1,12 +1,21 @@
 package com.surni.multiservices.controller;
 
-import com.surni.multiservices.model.Annonce;
-import com.surni.multiservices.service.AnnonceService;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.surni.multiservices.model.Annonce;
+import com.surni.multiservices.service.AnnonceService;
 
 @RestController
 @RequestMapping("/api/annonces")
@@ -16,7 +25,7 @@ public class AnnonceController {
 
     @GetMapping
     public List<Annonce> getAllAnnonces() {
-        return annonceService.findAll();
+        return annonceService.findByStatus(Annonce.Status.APPROVED);
     }
 
     @GetMapping("/{id}")
@@ -28,12 +37,16 @@ public class AnnonceController {
 
     @GetMapping("/artisan/{artisanId}")
     public List<Annonce> getAnnoncesByArtisan(@PathVariable Long artisanId) {
-        return annonceService.findByArtisanId(artisanId);
+        return annonceService.findByArtisanId(artisanId).stream()
+                .filter(a -> a.getStatus() == Annonce.Status.APPROVED)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/client/{clientId}")
     public List<Annonce> getAnnoncesByClient(@PathVariable Long clientId) {
-        return annonceService.findByClientId(clientId);
+        return annonceService.findByClientId(clientId).stream()
+                .filter(a -> a.getStatus() == Annonce.Status.APPROVED)
+                .collect(Collectors.toList());
     }
 
     @PostMapping

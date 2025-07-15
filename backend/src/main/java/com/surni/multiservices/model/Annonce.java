@@ -30,6 +30,15 @@ public class Annonce {
 
     private Boolean active = true;
 
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
+
+    public enum Status {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
+
     @OneToMany(mappedBy = "annonce", cascade = CascadeType.ALL)
     private List<Comment> comments;
 }

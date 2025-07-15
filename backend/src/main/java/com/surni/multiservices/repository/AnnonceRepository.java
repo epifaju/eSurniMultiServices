@@ -8,4 +8,6 @@ public interface AnnonceRepository extends JpaRepository<Annonce, Long> {
     List<Annonce> findByArtisanId(Long artisanId);
 
     List<Annonce> findByClientId(Long clientId);
+
+    List<Annonce> findByStatus(Annonce.Status status);
 }

@@ -31,13 +31,20 @@ export default function AdminPage() {
     (annoncePage + 1) * annoncesPerPage
   );
 
+  // Ajout pour gestion du statut d'annonce
+  const [annonceWorkflowStatus, setAnnonceWorkflowStatus] = useState("");
+
   const fetchAll = async () => {
     setLoading(true);
     try {
       const [usersRes, artisansRes, annoncesRes] = await Promise.all([
         api.get("/admin/users"),
         api.get("/admin/artisans"),
-        api.get("/admin/annonces"),
+        api.get(
+          `/admin/annonces${
+            annonceWorkflowStatus ? `?status=${annonceWorkflowStatus}` : ""
+          }`
+        ),
       ]);
       setUsers(usersRes.data);
       setArtisans(artisansRes.data);
@@ -52,7 +59,7 @@ export default function AdminPage() {
   useEffect(() => {
     fetchAll();
     // eslint-disable-next-line
-  }, []);
+  }, [annonceWorkflowStatus]);
 
   const handleDeleteUser = async (id) => {
     if (!window.confirm("Supprimer cet utilisateur ?")) return;
@@ -98,6 +105,25 @@ export default function AdminPage() {
       fetchAll();
     } catch {
       showToast("Erreur lors du changement de statut", "error");
+    }
+  };
+
+  const handleApproveAnnonce = async (id) => {
+    try {
+      await api.put(`/admin/annonces/${id}/status`, { status: "APPROVED" });
+      showToast("Annonce approuvée", "success");
+      fetchAll();
+    } catch {
+      showToast("Erreur lors de l'approbation", "error");
+    }
+  };
+  const handleRejectAnnonce = async (id) => {
+    try {
+      await api.put(`/admin/annonces/${id}/status`, { status: "REJECTED" });
+      showToast("Annonce refusée", "success");
+      fetchAll();
+    } catch {
+      showToast("Erreur lors du refus", "error");
     }
   };
 
@@ -225,9 +251,22 @@ export default function AdminPage() {
                 }}
                 className="border px-3 py-2 rounded-lg"
               >
-                <option value="">Tous statuts</option>
+                <option value="">Tous statuts (actif/inactif)</option>
                 <option value="active">Actives</option>
                 <option value="inactive">Désactivées</option>
+              </select>
+              <select
+                value={annonceWorkflowStatus}
+                onChange={(e) => {
+                  setAnnonceWorkflowStatus(e.target.value);
+                  setAnnoncePage(0);
+                }}
+                className="border px-3 py-2 rounded-lg"
+              >
+                <option value="">Tous workflow</option>
+                <option value="PENDING">En attente</option>
+                <option value="APPROVED">Approuvées</option>
+                <option value="REJECTED">Refusées</option>
               </select>
             </div>
             <span className="text-sm text-gray-500">
@@ -246,6 +285,7 @@ export default function AdminPage() {
                   <th className="p-2 border">Client</th>
                   <th className="p-2 border">Artisan</th>
                   <th className="p-2 border">Statut</th>
+                  <th className="p-2 border">Workflow</th>
                   <th className="p-2 border">Actions</th>
                 </tr>
               </thead>
@@ -277,6 +317,39 @@ export default function AdminPage() {
                       >
                         {ann.active === false ? "Désactivée" : "Active"}
                       </span>
+                    </td>
+                    <td className="p-2 border">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          ann.status === "PENDING"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : ann.status === "APPROVED"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {ann.status === "PENDING"
+                          ? "En attente"
+                          : ann.status === "APPROVED"
+                          ? "Approuvée"
+                          : "Refusée"}
+                      </span>
+                      {ann.status === "PENDING" && (
+                        <div className="flex gap-1 mt-1">
+                          <button
+                            className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                            onClick={() => handleApproveAnnonce(ann.id)}
+                          >
+                            Approuver
+                          </button>
+                          <button
+                            className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                            onClick={() => handleRejectAnnonce(ann.id)}
+                          >
+                            Refuser
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td className="p-2 border flex gap-2">
                       <button

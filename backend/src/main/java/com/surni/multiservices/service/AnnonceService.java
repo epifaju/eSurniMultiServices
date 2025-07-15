@@ -50,4 +50,14 @@ public class AnnonceService {
         annonce.setActive(active);
         return annonceRepository.save(annonce);
     }
+
+    public List<Annonce> findByStatus(Annonce.Status status) {
+        return annonceRepository.findByStatus(status);
+    }
+
+    public Annonce updateStatus(Long id, Annonce.Status status) {
+        Annonce annonce = annonceRepository.findById(id).orElseThrow();
+        annonce.setStatus(status);
+        return annonceRepository.save(annonce);
+    }
 }

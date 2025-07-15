@@ -11,6 +11,7 @@ import com.surni.multiservices.model.Annonce;
 import com.surni.multiservices.repository.CommentRepository;
 import org.springframework.data.domain.Sort;
 import java.util.stream.Collectors;
+import com.surni.multiservices.dto.ArtisanDTO;
 
 @Service
 public class ArtisanService {
@@ -64,5 +65,18 @@ public class ArtisanService {
 
     public Artisan findByUserId(Long userId) {
         return artisanRepository.findByUserId(userId);
+    }
+
+    public static ArtisanDTO toDTO(Artisan artisan) {
+        if (artisan == null)
+            return null;
+        ArtisanDTO dto = new ArtisanDTO();
+        dto.setId(artisan.getId());
+        dto.setPhotoUrl(artisan.getPhotoUrl());
+        dto.setEmail(artisan.getEmail());
+        dto.setPhone(artisan.getPhone());
+        dto.setCity(artisan.getCity());
+        dto.setCategory(artisan.getCategory());
+        return dto;
     }
 }
