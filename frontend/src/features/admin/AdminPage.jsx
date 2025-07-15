@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import api from "../../api";
 import { ToastContext } from "../../App";
+import ConfirmModal from "../../components/ConfirmModal";
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -8,6 +9,14 @@ export default function AdminPage() {
   const [annonces, setAnnonces] = useState([]);
   const [loading, setLoading] = useState(true);
   const showToast = useContext(ToastContext);
+
+  // États pour les modals de confirmation
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    type: null, // 'user', 'artisan', 'annonce'
+    id: null,
+    name: null,
+  });
 
   // Recherche et pagination pour annonces
   const [annonceSearch, setAnnonceSearch] = useState("");
@@ -61,8 +70,20 @@ export default function AdminPage() {
     // eslint-disable-next-line
   }, [annonceWorkflowStatus]);
 
-  const handleDeleteUser = async (id) => {
-    if (!window.confirm("Supprimer cet utilisateur ?")) return;
+  const handleDeleteUser = async (id, name) => {
+    setDeleteModal({ isOpen: true, type: "user", id: id, name: name });
+  };
+
+  const handleDeleteArtisan = async (id, name) => {
+    setDeleteModal({ isOpen: true, type: "artisan", id: id, name: name });
+  };
+
+  const handleDeleteAnnonce = async (id, name) => {
+    setDeleteModal({ isOpen: true, type: "annonce", id: id, name: name });
+  };
+
+  // Fonctions de suppression réelles
+  const confirmDeleteUser = async (id) => {
     try {
       await api.delete(`/admin/users/${id}`);
       showToast("Utilisateur supprimé", "success");
@@ -72,8 +93,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteArtisan = async (id) => {
-    if (!window.confirm("Supprimer cet artisan ?")) return;
+  const confirmDeleteArtisan = async (id) => {
     try {
       await api.delete(`/admin/artisans/${id}`);
       showToast("Artisan supprimé", "success");
@@ -83,8 +103,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteAnnonce = async (id) => {
-    if (!window.confirm("Supprimer cette annonce ?")) return;
+  const confirmDeleteAnnonce = async (id) => {
     try {
       await api.delete(`/admin/annonces/${id}`);
       showToast("Annonce supprimée", "success");
@@ -176,8 +195,8 @@ export default function AdminPage() {
                   </td>
                   <td className="p-2 border">
                     <button
-                      className="bg-red-500 text-white px-2 py-1 rounded mr-2"
-                      onClick={() => handleDeleteUser(u.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded mr-2 hover:bg-red-600 transition-colors"
+                      onClick={() => handleDeleteUser(u.id, u.name)}
                     >
                       Supprimer
                     </button>
@@ -215,8 +234,10 @@ export default function AdminPage() {
                   <td className="p-2 border">{a.phone}</td>
                   <td className="p-2 border">
                     <button
-                      className="bg-red-500 text-white px-2 py-1 rounded"
-                      onClick={() => handleDeleteArtisan(a.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
+                      onClick={() =>
+                        handleDeleteArtisan(a.id, a.name || a.user?.name)
+                      }
                     >
                       Supprimer
                     </button>
@@ -363,8 +384,8 @@ export default function AdminPage() {
                         {ann.active === false ? "Activer" : "Désactiver"}
                       </button>
                       <button
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
-                        onClick={() => handleDeleteAnnonce(ann.id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
+                        onClick={() => handleDeleteAnnonce(ann.id, ann.title)}
                       >
                         Supprimer
                       </button>
@@ -400,6 +421,28 @@ export default function AdminPage() {
           )}
         </div>
       </section>
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() =>
+          setDeleteModal({ isOpen: false, type: null, id: null, name: null })
+        }
+        onConfirm={() => {
+          if (deleteModal.type === "user") {
+            confirmDeleteUser(deleteModal.id);
+          } else if (deleteModal.type === "artisan") {
+            confirmDeleteArtisan(deleteModal.id);
+          } else if (deleteModal.type === "annonce") {
+            confirmDeleteAnnonce(deleteModal.id);
+          }
+        }}
+        title={`Supprimer ${deleteModal.name || "l'élément"}`}
+        message={`Êtes-vous sûr de vouloir supprimer "${
+          deleteModal.name || "cet élément"
+        }" ? Cette action est irréversible.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
+      />
     </div>
   );
 }
