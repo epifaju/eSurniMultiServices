@@ -20,8 +20,8 @@ public class CommentService {
         return commentRepository.findById(id);
     }
 
-    public List<Comment> findByAnnonceId(Long annonceId) {
-        return commentRepository.findByAnnonceId(annonceId);
+    public List<Comment> findByArtisanId(Long artisanId) {
+        return commentRepository.findByArtisanId(artisanId);
     }
 
     public Comment save(Comment comment) {

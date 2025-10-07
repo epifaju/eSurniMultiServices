@@ -28,4 +28,7 @@ public class Artisan {
 
     @OneToMany(mappedBy = "artisan", cascade = CascadeType.ALL)
     private List<Annonce> annonces;
+
+    @OneToMany(mappedBy = "artisan", cascade = CascadeType.ALL)
+    private List<Comment> comments;
 }

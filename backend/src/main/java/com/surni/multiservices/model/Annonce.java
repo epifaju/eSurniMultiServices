@@ -3,7 +3,6 @@ package com.surni.multiservices.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "annonces")
@@ -18,6 +17,8 @@ public class Annonce {
 
     private String title;
     private String description;
+    private String city;
+    private String category;
     private LocalDateTime createdAt;
 
     @ManyToOne
@@ -28,9 +29,11 @@ public class Annonce {
     @JoinColumn(name = "client_id")
     private User client;
 
+    @Builder.Default
     private Boolean active = true;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Status status = Status.PENDING;
 
     public enum Status {
@@ -38,7 +41,4 @@ public class Annonce {
         APPROVED,
         REJECTED
     }
-
-    @OneToMany(mappedBy = "annonce", cascade = CascadeType.ALL)
-    private List<Comment> comments;
 }

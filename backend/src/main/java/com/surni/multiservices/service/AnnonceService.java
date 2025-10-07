@@ -34,10 +34,10 @@ public class AnnonceService {
 
     public List<Annonce> findByCityAndCategory(String city, String category) {
         return findAll().stream()
-                .filter(a -> (city == null
-                        || (a.getArtisan() != null && city.equalsIgnoreCase(a.getArtisan().getCity()))))
-                .filter(a -> (category == null
-                        || (a.getArtisan() != null && category.equalsIgnoreCase(a.getArtisan().getCategory()))))
+                .filter(a -> (city == null || city.isEmpty()
+                        || (a.getCity() != null && city.equalsIgnoreCase(a.getCity()))))
+                .filter(a -> (category == null || category.isEmpty()
+                        || (a.getCategory() != null && category.equalsIgnoreCase(a.getCategory()))))
                 .collect(java.util.stream.Collectors.toList());
     }
 

@@ -60,7 +60,21 @@ const AnnonceListPage = () => {
           >
             <div>
               <div className="font-bold">{annonce.title}</div>
-              <div className="text-sm text-gray-600">{annonce.description}</div>
+              <div className="text-sm text-gray-600 mb-2">
+                {annonce.description}
+              </div>
+              <div className="flex gap-2 text-xs text-gray-500 mb-1">
+                {annonce.city && (
+                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                    📍 {annonce.city}
+                  </span>
+                )}
+                {annonce.category && (
+                  <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                    🔧 {annonce.category}
+                  </span>
+                )}
+              </div>
               <div className="text-sm">
                 Artisan : {annonce.artisan?.user?.name ?? "-"}
               </div>

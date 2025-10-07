@@ -10,7 +10,14 @@ const ArtisanDetailPage = () => {
   const [artisan, setArtisan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
-  const { role } = useContext(AuthContext) || {};
+  const { role, userId } = useContext(AuthContext) || {};
+
+  const loadComments = () => {
+    api
+      .get(`/comments/artisan/${id}`)
+      .then((res) => setComments(res.data))
+      .catch(() => setComments([]));
+  };
 
   useEffect(() => {
     api
@@ -18,16 +25,12 @@ const ArtisanDetailPage = () => {
       .then((res) => setArtisan(res.data))
       .catch(() => setArtisan(null))
       .finally(() => setLoading(false));
-    api
-      .get(`/comments/artisan/${id}`)
-      .then((res) => setComments(res.data))
-      .catch(() => setComments([]));
+    loadComments();
   }, [id]);
 
   const handleAddComment = async (data) => {
-    await api.post(`/comments/artisan/${id}`, data);
-    const res = await api.get(`/comments/artisan/${id}`);
-    setComments(res.data);
+    await api.post(`/comments/artisan/${id}`, { ...data, userId });
+    loadComments();
   };
 
   if (loading) return <div>Chargement...</div>;
@@ -57,7 +60,9 @@ const ArtisanDetailPage = () => {
       </div>
       {/* Affichage des annonces et commentaires à ajouter ici */}
       <CommentList comments={comments} />
-      {role === "CLIENT" && <CommentForm onSubmit={handleAddComment} />}
+      {(role === "USER" || role === "CLIENT") && (
+        <CommentForm onSubmit={handleAddComment} />
+      )}
     </div>
   );
 };

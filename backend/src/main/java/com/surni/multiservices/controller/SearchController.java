@@ -74,8 +74,7 @@ public class SearchController {
                 List<Annonce> annonces = annonceService.findByCityAndCategory(city, category).stream()
                                 .filter(a -> a.getStatus() == Annonce.Status.APPROVED)
                                 .collect(Collectors.toList());
-                // Recherche par mot-clé sur titre, description, ville, catégorie, nom de
-                // l'artisan, email de l'artisan, nom du client
+                // Recherche par mot-clé sur titre, description, ville, catégorie de l'annonce
                 if (!q.isEmpty()) {
                         String qLower = q.toLowerCase();
                         annonces = annonces.stream()
@@ -83,6 +82,10 @@ public class SearchController {
                                                         && a.getTitle().toLowerCase().contains(qLower))
                                                         || (a.getDescription() != null && a.getDescription()
                                                                         .toLowerCase().contains(qLower))
+                                                        || (a.getCity() != null && a.getCity().toLowerCase()
+                                                                        .contains(qLower))
+                                                        || (a.getCategory() != null && a.getCategory().toLowerCase()
+                                                                        .contains(qLower))
                                                         || (a.getArtisan() != null && ((a.getArtisan().getCity() != null
                                                                         && a.getArtisan().getCity().toLowerCase()
                                                                                         .contains(qLower))

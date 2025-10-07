@@ -20,8 +20,8 @@ public class Comment {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "annonce_id")
-    private Annonce annonce;
+    @JoinColumn(name = "artisan_id")
+    private Artisan artisan;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import com.surni.multiservices.model.Comment;
-import com.surni.multiservices.model.Annonce;
 import com.surni.multiservices.repository.CommentRepository;
-import org.springframework.data.domain.Sort;
 import java.util.stream.Collectors;
 import com.surni.multiservices.dto.ArtisanDTO;
 
@@ -45,12 +43,7 @@ public class ArtisanService {
     }
 
     public double getAverageRating(Artisan artisan) {
-        List<Annonce> annonces = artisan.getAnnonces();
-        if (annonces == null || annonces.isEmpty())
-            return 0.0;
-        List<Comment> comments = annonces.stream()
-                .flatMap(annonce -> commentRepository.findByAnnonceId(annonce.getId()).stream())
-                .collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findByArtisanId(artisan.getId());
         if (comments.isEmpty())
             return 0.0;
         return comments.stream().mapToInt(Comment::getRating).average().orElse(0.0);
